@@ -75,3 +75,20 @@ model Verification {
   @@index([identifier])
   @@map("verification")
 }
+
+model DeviceCode {
+  id              String    @id
+  deviceCode      String
+  userCode        String
+  userId          String?
+  expiresAt       DateTime
+  status          String
+  lastPolledAt    DateTime?
+  pollingInterval Int?
+  clientId        String?
+  scope           String?
+
+  @@unique([deviceCode], map: "deviceCode_deviceCode_uidx")
+  @@unique([userCode], map: "deviceCode_userCode_uidx")
+  @@map("deviceCode")
+}
