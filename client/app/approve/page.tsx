@@ -8,7 +8,7 @@ import { toast } from "sonner"
 import { authClient } from '@/lib/auth-client'
 import { CheckCircle, Smartphone, XCircle } from 'lucide-react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 const DeviceApprovePage = () => {
   const { data, isPending } = authClient.useSession();
@@ -21,6 +21,12 @@ const DeviceApprovePage = () => {
     deny: false
   })
 
+  useEffect(() => {
+    if (!isPending && !data?.session && !data?.user) {
+      router.replace("/sign-in")
+    }
+    }, [isPending, data, router])
+
   if (isPending) {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-background">
@@ -29,9 +35,7 @@ const DeviceApprovePage = () => {
     )
   }
 
-  if (!data?.session && !data?.user) {
-    router.push("/sign-in")
-  }
+ 
 
   const handleApprove = async () => {
     setIsProcessing({

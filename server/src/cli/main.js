@@ -5,7 +5,9 @@ import chalk from "chalk" //to add colours
 import figlet from "figlet" //to add banners 
 
 import {Command} from "commander" //to create a command
-import { login } from "./commands/auth/login.js"
+import { login} from "./commands/auth/login.js"
+import { logout } from "./commands/auth/logout.js"
+import { whoami } from "./commands/auth/whoami.js"
 
 
 dotenv.config()
@@ -26,6 +28,8 @@ async function main() {
     program.version("0.0.1")
     .description("Pulse is a Cli based application")
     .addCommand(login)
+    .addCommand(logout)
+    .addCommand(whoami)
 
     program.action(()=>{
         program.help();
