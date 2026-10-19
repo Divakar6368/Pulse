@@ -7,10 +7,16 @@ import { Card, CardContent } from "./ui/card";
 import { authClient } from '@/lib/auth-client';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { Spinner } from './ui/spinner';
 
 const LoginForm = () => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
+  if(isLoading){
+    <div className='flex flex-col justify-center items-center'>
+      <Spinner/>
+    </div>
+  }
 
   return (
     <div className="flex flex-col gap-6 justify-center items-center">

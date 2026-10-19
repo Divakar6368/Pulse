@@ -14,10 +14,12 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "@ai-sdk/google": "^4.0.99",
     "@clack/prompts": "^1.8.1",
     "@neondatabase/serverless": "^1.2.0",
     "@prisma/adapter-neon": "^7.10.1",
     "@prisma/client": "^7.10.1",
+    "ai": "^7.0.143",
     "better-auth": "^1.7.10",
     "boxen": "^9.0.0",
     "chalk": "^6.0.1",
