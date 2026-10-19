@@ -4,7 +4,7 @@ import {streamText} from "ai"
 import chalk from "chalk" 
 
 
-export class AIServices{
+export class AIService{
     constructor(){
         if(!config.googleApiKey){
             throw new Error("Google_API_KEY is not present in env.")
