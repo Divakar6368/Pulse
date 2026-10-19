@@ -65,7 +65,7 @@ export async function pollForToken(
             }
           } catch (error) {
             spinner.stop();
-            logger.error(`Network error: ${err.message}`);
+            logger.error(`Network error: ${error.message}`);
             process.exit(1);
           }
 
