@@ -24,7 +24,16 @@ export class AIService{
                 messages:messages
             }
 
+            if(tools && Object.keys(tools).length>0){
+                streamConfig.tools=tools;
+                streamConfig.maxSteps=5;
+
+                console.log(chalk.gray(`[Debug] Tools enabled : ${Object.keys(tools).join(",")}`))
+            }
+
             const result=streamText(streamConfig)
+
+          
 
             let fullResponse=""
             
@@ -37,6 +46,27 @@ export class AIService{
             }
 
             const fullResult=result;
+
+
+            const toolCalls=[]
+            const toolResults=[]
+
+
+            if(fullResult.steps && Array.isArray(fullResult.steps)){
+                for(const step of fullResult.steps){
+                    if(step.toolCalls && step.toolCalls.length>0){
+                        for(const toolCall of step.toolCalls){
+                            toolCalls.push(toolCall);
+                            if(onToolCall){
+                                onToolCall(toolCall)
+                            }
+                        }
+                    }
+                    if(step.toolResults && step.toolResults.length>0){
+                        toolResults.push(...step.toolResults)
+                    }
+                }
+            }
 
             /**
              * {
@@ -53,7 +83,10 @@ export class AIService{
             return{
                 content:fullResponse,
                 finishResponse:fullResult.finishReason,
-                usage:fullResult.usage
+                usage:fullResult.usage,
+                toolCalls,
+                toolResults,
+                steps:fullResult.steps
             }
 
         } catch (error) {
@@ -66,9 +99,9 @@ export class AIService{
 
     async getMessage(messages,tools=undefined){
         let fullResponse=""
-        await this.sendMessage(messages,(chunk)=>{
+        const result=await this.sendMessage(messages,(chunk)=>{
             fullResponse+=chunk;
-        })
-        return fullResponse;
+        },tools)
+        return result.content;
     }
 }
