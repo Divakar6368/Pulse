@@ -36,7 +36,7 @@ const LoginForm = () => {
                 type="button"
                 onClick={() => authClient.signIn.social({
                   provider: "github",
-                  callbackURL: "http://localhost:3000"
+                  callbackURL: "https://pulse-lake-two.vercel.app"
                 })}
 
               >
