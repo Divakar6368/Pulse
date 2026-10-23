@@ -1,42 +1,66 @@
-import express from "express"
-import { toNodeHandler } from "better-auth/node";
-import { auth } from "./lib/auth.js"
-import dotenv from "dotenv"
-import cors from "cors"
 
-dotenv.config()
-const app=express();
+import "dotenv/config";
 
+import express from "express";
+import cors from "cors";
+import { toNodeHandler, fromNodeHeaders } from "better-auth/node";
+import { auth } from "./lib/auth.js";
 
+const app = express();
 
+const frontendUrl =
+  process.env.CLIENT_URL || "http://localhost:3000";
+
+const allowedOrigins = [
+  "http://localhost:3000",
+  frontendUrl,
+].filter(Boolean);
+
+app.set("trust proxy", 1);
 
 app.use(
-    cors({
-        origin:"http://localhost:3000",
-        methods: ["GET", "POST", "PUT", "DELETE"],
-        credentials:true,
-    })
-)
+  cors({
+    origin: allowedOrigins,
+    methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+    credentials: true,
+  })
+);
 
-app.all("/api/auth/*splat", toNodeHandler(auth)); 
+// Better Auth handler must come before express.json().
+app.all("/api/auth/*splat", toNodeHandler(auth));
+
 app.use(express.json());
 
-app.get("/api/me", async (req, res) => {
- 	const session = await auth.api.getSession({
+app.get("/api/me", async (req, res, next) => {
+  try {
+    const session = await auth.api.getSession({
       headers: fromNodeHeaders(req.headers),
     });
-	return res.json(session);
+
+    return res.json(session);
+  } catch (error) {
+    next(error);
+  }
 });
 
-app.get("/device",async(req,res)=>{
-    const {user_code}=req.query;
-    res.redirect(`http://localhost:3000/device?user_code=${user_code}`)
-})
+app.get("/device", (req, res) => {
+  const userCode = req.query.user_code;
 
-app.get("/",(req,res)=>{
-    res.send("OK");
-})
+  const destination = new URL("/device", frontendUrl);
 
-app.listen(process.env.PORT,()=>{
-    console.log(`Listening at port no:${process.env.PORT}`)
-})
+  if (typeof userCode === "string") {
+    destination.searchParams.set("user_code", userCode);
+  }
+
+  return res.redirect(destination.toString());
+});
+
+app.get("/", (_req, res) => {
+  res.status(200).send("Pulse API is running");
+});
+
+const port = process.env.PORT || 3004;
+
+app.listen(port, "0.0.0.0", () => {
+  console.log(`Pulse API listening on port ${port}`);
+});
