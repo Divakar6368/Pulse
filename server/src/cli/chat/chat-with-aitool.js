@@ -12,6 +12,8 @@ import {prisma} from "../../lib/db.js"
 import {availableTools,getEnabledToolNames,getEnabledTools,enableTools,resetTools} from "../../config/tool.config.js"
 import { displayMessages, getUserFromToken ,updateConversationTitle,saveMessage} from "./utils/chataiutils.js";
 
+const aiService=new AIService()
+const chatService=new ChatService()
 
 async function selectTools() {
     const toolOptions=availableTools.map(tool=>({
@@ -33,9 +35,9 @@ async function selectTools() {
         process.exit(0);
     }
 
-    enableTools(selectTools);
+    enableTools(selectedTools);
 
-    if(selectTools.length===0){
+    if(selectedTools.length===0){
         console.log(
          chalk.yellow("\n⚠️  No tools selected. AI will work without tools.\n")
         );
@@ -215,6 +217,86 @@ async function chatLoop(conversation) {
     await updateConversationTitle(conversation.id, userInput, messages.length);
 
   }
+}
+
+async function getAIResponse(conversationId) {
+  const spinner=yoctoSpinner({
+    text:"AI is thinking...",
+    color:"cyan",
+  }).start();
+
+  const dbMessages=await chatService.getMessages(conversationId)
+  const aiMessages=chatService.formatMessageForAI(dbMessages)
+
+  const tools=getEnabledTools();
+
+  let fullResponse=""
+  let isFirstChunk=true
+  const toolCallsDetected=[]
+
+  try {
+    const result=await aiService.sendMessage(aiMessages,(chunk)=>{
+      if(isFirstChunk){
+        spinner.stop();
+        console.log("\n");
+        const header=chalk.green.bold("🤖 Assistant")
+        console.log(header)
+        console.log(chalk.gray("-".repeat(60)))
+        isFirstChunk=false
+      }
+      fullResponse+=chunk;
+    },
+    tools,(toolCall)=>{
+      toolCallsDetected.push(toolCall)
+    }
+  );
+
+   if (toolCallsDetected.length > 0) {
+      console.log("\n");
+      const toolCallBox = boxen(
+        toolCallsDetected.map(tc => 
+          `${chalk.cyan("🔧 Tool:")} ${tc.toolName}\n${chalk.gray("Args:")} ${JSON.stringify(tc.args, null, 2)}`
+        ).join("\n\n"),
+        {
+          padding: 1,
+          margin: 1,
+          borderStyle: "round",
+          borderColor: "cyan",
+          title: "🛠️  Tool Calls",
+        }
+      );
+      console.log(toolCallBox);
+    }
+
+      if (result.toolResults && result.toolResults.length > 0) {
+      const toolResultBox = boxen(
+        result.toolResults.map(tr => 
+          `${chalk.green("✅ Tool:")} ${tr.toolName}\n${chalk.gray("Result:")} ${JSON.stringify(tr.result, null, 2).slice(0, 200)}...`
+        ).join("\n\n"),
+        {
+          padding: 1,
+          margin: 1,
+          borderStyle: "round",
+          borderColor: "green",
+          title: "📊 Tool Results",
+        }
+      );
+      console.log(toolResultBox);
+    }
+
+      // Render markdown response
+    console.log("\n");
+    const renderedMarkdown = marked.parse(fullResponse);
+    console.log(renderedMarkdown);
+    console.log(chalk.gray("─".repeat(60)));
+    console.log("\n");
+    
+    return result.content;
+  } catch (error) {
+    spinner.error("Failed to get AI response");
+    throw error;
+  }
+
 }
 
 

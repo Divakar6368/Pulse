@@ -1,4 +1,4 @@
-import { confirm, intro, isCancel } from "@clack/prompts";
+import { confirm, intro, isCancel, outro } from "@clack/prompts";
 import { clearStoredToken, getStoredToken } from "../../../lib/token.js";
 import chalk from "chalk";
 import { Command } from "commander";
