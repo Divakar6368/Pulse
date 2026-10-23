@@ -12,9 +12,9 @@ import { Spinner } from './ui/spinner';
 const LoginForm = () => {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
-  if(isLoading){
+  if (isLoading) {
     <div className='flex flex-col justify-center items-center'>
-      <Spinner/>
+      <Spinner />
     </div>
   }
 
@@ -31,17 +31,40 @@ const LoginForm = () => {
           <div className="grid gap-6">
             <div className="flex flex-col gap-4">
               <Button
-                variant={"outline"}
+                variant="outline"
                 className="w-full h-full"
                 type="button"
-                onClick={() => authClient.signIn.social({
-                  provider: "github",
-                  callbackURL: "https://pulse-lake-two.vercel.app"
-                })}
+                disabled={isLoading}
+                onClick={async () => {
+                  try {
+                    setIsLoading(true);
 
+                    const { data, error } = await authClient.signIn.social({
+                      provider: "github",
+                      callbackURL: "https://pulse-lake-two.vercel.app",
+                    });
+
+                    if (error) {
+                      console.error("GitHub login error:", error);
+                      setIsLoading(false);
+                      return;
+                    }
+
+                    console.log("GitHub sign-in response:", data);
+                  } catch (error) {
+                    console.error("GitHub login failed:", error);
+                    setIsLoading(false);
+                  }
+                }}
               >
-                <Image src={"/github.svg"} alt="Github" height={16} width={16} className="size-4 dark:invert" />
-                Continue With GitHub
+                <Image
+                  src="/github.svg"
+                  alt="GitHub"
+                  height={16}
+                  width={16}
+                  className="size-4 dark:invert"
+                />
+                {isLoading ? "Connecting..." : "Continue With GitHub"}
               </Button>
 
             </div>
