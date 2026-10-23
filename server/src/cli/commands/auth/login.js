@@ -36,14 +36,11 @@ export async function loginAction() {
     clientId: z.string().optional(),
   });
 
-  const parsedOptions = optionsSchema.parse({
-    serverUrl: commandOptions.serverUrl,
-    clientId: commandOptions.clientId,
-  });
-  const serverUrl = parsedOptions.serverUrl || URL;
-  const clientId = parsedOptions.clientId || CLIENT_ID;
+  const serverUrl = options.serverUrl || URL;
+  const clientId = options.clientId || CLIENT_ID;
 
-  intro(chalk.bold("🔏Auth CLI Login."));
+
+  intro(chalk.bold("🔏 Auth CLI Login."));
 
   const existingToken = getStoredToken();
   const expired = isTokenExpired();

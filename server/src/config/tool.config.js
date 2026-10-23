@@ -7,7 +7,7 @@ export const availableTools=[
         id:"google_search",
         name:"Google Search",
         description:"Acess the latest information using Google Search.Usefull for current events,news ,and real-time information.",
-        getTools:()=>google.tools.googleSearch({}),
+        getTool:()=>google.tools.googleSearch({}),
         enabled:false,
     },
      {

@@ -14,7 +14,7 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
-    "@ai-sdk/google": "^4.0.99",
+    "@ai-sdk/google": "^4.0.104",
     "@clack/prompts": "^1.8.1",
     "@neondatabase/serverless": "^1.2.0",
     "@prisma/adapter-neon": "^7.10.1",
