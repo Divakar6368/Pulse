@@ -1,5 +1,5 @@
 import express from "express"
-import { toNodeHandler } from "better-auth/node";
+import { fromNodeHeaders, toNodeHandler } from "better-auth/node";
 import { auth } from "./lib/auth.js"
 import dotenv from "dotenv"
 import cors from "cors"
@@ -12,7 +12,10 @@ const app=express();
 
 app.use(
     cors({
-        origin:"http://localhost:3000",
+        origin:[
+            "http://localhost:3000",
+            `${process.env.CLIENT_URL}`
+        ],
         methods: ["GET", "POST", "PUT", "DELETE"],
         credentials:true,
     })
@@ -28,20 +31,27 @@ app.get("/api/me", async (req, res) => {
 	return res.json(session);
 });
 
-app.get("/device",async(req,res)=>{
+app.get("/device", (req, res) => {
+  const userCode = req.query.user_code;
+  const frontendUrl = process.env.CLIENT_URL;
 
-//     if (!user_code) {
-//     return res.status(400).send("Missing user code");
-//   }
-  res.redirect(
-    `${process.env.CLIENT_URL}/device?user_code=${encodeURIComponent(user_code)}`
-  );
-})
+  if (!frontendUrl) {
+    return res.status(500).send("CLIENT_URL is not configured");
+  }
+
+  const redirectUrl = new URL("/device", frontendUrl);
+
+  if (typeof userCode === "string" && userCode) {
+    redirectUrl.searchParams.set("user_code", userCode);
+  }
+
+  return res.redirect(redirectUrl.toString());
+});
 
 app.get("/",(req,res)=>{
     res.send("OK");
 })
 
-app.listen(process.env.PORT,()=>{
+app.listen(process.env.PORT,"0.0.0.0",()=>{
     console.log(`Listening at port no:${process.env.PORT}`)
 })
