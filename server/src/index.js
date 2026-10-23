@@ -6,7 +6,7 @@ import cors from "cors"
 
 dotenv.config()
 const app=express();
-
+app.set("trust proxy", 1);
 const allowedOrigins = [
   "http://localhost:3000",
   "https://pulse-lake-two.vercel.app",

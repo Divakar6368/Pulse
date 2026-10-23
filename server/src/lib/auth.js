@@ -10,7 +10,11 @@ export const auth = betterAuth({
     provider: "postgresql",
   }),
   basePath: "/api/auth",
-  trustedOrigins: ["http://localhost:3000", `${process.env.CLIENT_URL}`],
+ trustedOrigins: [
+  "http://localhost:3000",
+  "https://pulse-lake-two.vercel.app",
+  "https://pulse-dk-a507.vercel.app",
+],
   socialProviders: {
     github: {
       clientId: process.env.GITHUB_CLIENT_ID,
