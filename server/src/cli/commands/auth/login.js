@@ -23,7 +23,7 @@ dotenv.config();
 // To store in local computer using below 4 variables
 
 
-export const URL = "http://localhost:3004";
+export const URL = process.env.BACK_END;
 const CLIENT_ID = process.env.GITHUB_CLIENT_ID;
 // create a .better-auth folder in home directry not actual folder create just a link like  C:\Users\YourUser\.better-auth
 export const CONFIG_DIR = path.join(os.homedir(), ".better-auth");
