@@ -7,15 +7,17 @@ import cors from "cors"
 dotenv.config()
 const app=express();
 
-
+const allowedOrigins = [
+  "http://localhost:3000",
+  "https://pulse-lake-two.vercel.app",
+  "https://pulse-dk-a507.vercel.app",
+  
+];
 
 
 app.use(
     cors({
-        origin:[
-            "http://localhost:3000",
-            `${process.env.CLIENT_URL}`
-        ],
+        origin:allowedOrigins,
         methods: ["GET", "POST", "PUT", "DELETE"],
         credentials:true,
     })
@@ -44,7 +46,7 @@ app.get("/device", (req, res) => {
   if (typeof userCode === "string" && userCode) {
     redirectUrl.searchParams.set("user_code", userCode);
   }
-
+  console.log(redirectUrl.toString())
   return res.redirect(redirectUrl.toString());
 });
 
