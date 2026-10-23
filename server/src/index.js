@@ -30,9 +30,9 @@ app.get("/api/me", async (req, res) => {
 
 app.get("/device",async(req,res)=>{
 
-    if (typeof user_code !== "string" || !user_code) {
-    return res.status(400).send("Missing user code");
-  }
+//     if (!user_code) {
+//     return res.status(400).send("Missing user code");
+//   }
   res.redirect(
     `${process.env.CLIENT_URL}/device?user_code=${encodeURIComponent(user_code)}`
   );
