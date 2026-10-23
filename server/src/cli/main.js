@@ -32,6 +32,7 @@ async function main() {
     .addCommand(logout)
     .addCommand(whoami)
     .addCommand(wakeUp)
+    
 
     program.action(()=>{
         program.help();

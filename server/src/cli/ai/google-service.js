@@ -1,6 +1,6 @@
 import {config} from "../../config/google.config.js"
 import {google} from "@ai-sdk/google"
-import {streamText} from "ai"
+import {generateText, Output, streamText} from "ai"
 import chalk from "chalk" 
 
 
@@ -104,4 +104,24 @@ export class AIService{
         },tools)
         return result.content;
     }
+
+
+    async generateStructured(schema,promt){
+        try {
+            const result=await generateText({
+                model:this.model,
+                output:Output.object({
+                    schema:schema
+                }),
+                prompt:promt
+            })
+            return result.object
+        } catch (error) {
+            console.log(chalk.red("AI Structured Generation Failed:"),error.message)
+            throw error;
+        }
+    }
+
 }
+
+
