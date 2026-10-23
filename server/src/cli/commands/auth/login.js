@@ -20,10 +20,14 @@ import { pollForToken } from "../utils/polling.js";
 dotenv.config();
 
 
+// To store in local computer using below 4 variables
+
 
 export const URL = "http://localhost:3004";
 const CLIENT_ID = process.env.GITHUB_CLIENT_ID;
+// create a .better-auth folder in home directry not actual folder create just a link like  C:\Users\YourUser\.better-auth
 export const CONFIG_DIR = path.join(os.homedir(), ".better-auth");
+// save to token.json
 export const TOKEN_FILE = path.join(CONFIG_DIR, "token.json");
 
 export async function loginAction() {
@@ -31,10 +35,12 @@ export async function loginAction() {
     serverUrl: z.string().optional(),
     clientId: z.string().optional(),
   });
+
   const serverUrl = options.serverUrl || URL;
   const clientId = options.clientId || CLIENT_ID;
 
-  intro(chalk.bold("🔏Auth CLI Login."));
+
+  intro(chalk.bold("🔏 Auth CLI Login."));
 
   const existingToken = getStoredToken();
   const expired = isTokenExpired();

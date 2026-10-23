@@ -8,6 +8,7 @@ import {Command} from "commander" //to create a command
 import { login} from "./commands/auth/login.js"
 import { logout } from "./commands/auth/logout.js"
 import { whoami } from "./commands/auth/whoami.js"
+import { wakeUp } from "./commands/ai/wakeup.js"
 
 
 dotenv.config()
@@ -30,6 +31,8 @@ async function main() {
     .addCommand(login)
     .addCommand(logout)
     .addCommand(whoami)
+    .addCommand(wakeUp)
+    
 
     program.action(()=>{
         program.help();
