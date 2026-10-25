@@ -1,6 +1,6 @@
 {
-  "name": "server",
-  "version": "1.0.0",
+  "name": "pulse-cli-divakar",
+  "version": "1.0.2",
   "main": "src/index.js",
   "bin": {
     "pulse": "./src/cli/main.js"
@@ -14,7 +14,7 @@
    "db:deploy": "prisma migrate deploy"
   },
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "dependencies": {
     "@ai-sdk/google": "^4.0.104",
     "@clack/prompts": "^1.8.1",
@@ -36,9 +36,21 @@
     "yocto-spinner": "^1.2.2",
     "zod": "^4.6.7"
   },
-  "keywords": [],
-  "description": "",
+  "keywords": [
+    "pulse",
+    "cli",
+    "ai",
+    "developer-tools"
+  ],
+  "description": "Pulse CLI — an AI-powered command-line application",
   "devDependencies": {
     "prisma": "^7.10.1"
-  }
+  },
+   "files": [
+    "src/cli",
+     "src/lib",
+     "src/config",
+      "src/generated/prisma"
+  ]
+  
 }

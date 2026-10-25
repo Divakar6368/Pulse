@@ -26,7 +26,7 @@ async function main() {
     console.log(chalk.magenta("A Cli Based AI application.\n"))
 
     const program=new Command("pulse")
-    program.version("0.0.1")
+    program.version("1.0.3")
     .description("Pulse is a Cli based application")
     .addCommand(login)
     .addCommand(logout)

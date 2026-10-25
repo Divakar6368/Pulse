@@ -23,8 +23,8 @@ dotenv.config();
 // To store in local computer using below 4 variables
 
 
-export const URL = process.env.BACK_END;
-const CLIENT_ID = process.env.GITHUB_CLIENT_ID;
+export const URL = process.env.BACK_END ||  "https://pulse-4t51.onrender.com";
+const CLIENT_ID = process.env.GITHUB_CLIENT_ID || "Ov23lijaPrTkzWootiuZ"
 // create a .better-auth folder in home directry not actual folder create just a link like  C:\Users\YourUser\.better-auth
 export const CONFIG_DIR = path.join(os.homedir(), ".better-auth");
 // save to token.json
@@ -42,8 +42,8 @@ export async function loginAction() {
 
   intro(chalk.bold("🔏 Auth CLI Login."));
 
-  const existingToken = getStoredToken();
-  const expired = isTokenExpired();
+  const existingToken =await  getStoredToken();
+  const expired = await isTokenExpired();
 
   if (existingToken && !expired) {
     const shouldReAuth = await confirm({

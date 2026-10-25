@@ -5,6 +5,7 @@ import express from "express";
 import cors from "cors";
 import { toNodeHandler, fromNodeHeaders } from "better-auth/node";
 import { auth } from "./lib/auth.js";
+import { prisma } from "./lib/db.js";
 
 const app = express();
 
@@ -54,6 +55,53 @@ app.get("/device", (req, res) => {
 
   return res.redirect(destination.toString());
 });
+
+
+app.get("/api/cli/me", async (req, res, next) => {
+  try {
+    const authorization = req.headers.authorization;
+
+    if (!authorization?.startsWith("Bearer ")) {
+      return res.status(401).json({
+        error: "Missing authentication token",
+      });
+    }
+
+    const token = authorization.slice("Bearer ".length).trim();
+
+    if (!token) {
+      return res.status(401).json({
+        error: "Missing authentication token",
+      });
+    }
+
+    const session = await prisma.session.findUnique({
+      where: { token },
+      select: {
+        expiresAt: true,
+        user: {
+          select: {
+            id: true,
+            name: true,
+            email: true,
+            image: true,
+          },
+        },
+      },
+    });
+
+    if (!session || session.expiresAt <= new Date()) {
+      return res.status(401).json({
+        error: "Invalid or expired session",
+      });
+    }
+
+    return res.json(session.user);
+  } catch (error) {
+    next(error);
+  }
+});
+
 
 app.get("/", (_req, res) => {
   res.status(200).send("Pulse API is running");

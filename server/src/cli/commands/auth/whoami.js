@@ -1,32 +1,38 @@
 import chalk from "chalk";
-import { prisma } from "../../../lib/db.js";
+
 import { requireAuth } from "../../../lib/token.js";
 import { Command } from "commander";
 import { URL } from "./login.js";
 
-export async function whoamiAction() {
+export async function whoamiAction(options) {
   const token=await requireAuth();
   if(!token?.access_token){
     console.log("No access token found.Please login");
     process.exit(1);
   }
 
-  const user=await prisma.user.findFirst({
-    where:{
-      sessions:{
-        some:{
-          token:token.access_token,
-        }
-      }
-    },
-    select:{
-      id:true,
-      name:true,
-      email:true,
-      image:true
-    }
+ 
+const serverUrl = (options.serverUrl || URL).replace(/\/+$/, "");
 
-  })
+const response = await fetch(`${serverUrl}/api/cli/me`, {
+  headers: {
+    Authorization: `Bearer ${token.access_token}`,
+  },
+});
+
+if (!response.ok) {
+  console.log(
+    chalk.red(
+      response.status === 401
+        ? "Session invalid or expired. Please login again."
+        : `Failed to fetch user: HTTP ${response.status}`
+    )
+  );
+  return;
+}
+
+const user = await response.json();
+
 
   console.log(
     chalk.bold.greenBright(`\n 👤User: ${user.name}
