@@ -1,98 +1,104 @@
-import { prisma } from "../lib/db.js"
+
 
 
 export class ChatService{
+    async request(endpoint, options = {}) {
+    const token = await getStoredToken();
 
-    async createConversation(userId,mode="chat",title=null){
-        return prisma.conversation.create({
-            data:{
-                userId,
-                mode,
-                title:title || `New ${mode} conversation`
-            }
-        })
+    if (!token?.access_token) {
+        throw new Error("Not authenticated. Please run 'pulse login' first.");
     }
 
-    async getOrCreateConversation(userId,conversationId=null,mode="chat"){
-        if(conversationId){
-            const conversation=await prisma.conversation.findFirst({
-                where:{
-                    id:conversationId,
-                    userId
-                },
-                include:{
-                    messages:{
-                        orderBy:{
-                            createdAt:"asc"
-                        }
-                    }
-                }
-
-            })
-            if(conversation) return conversation;
+    const response = await fetch(
+        `${URL.replace(/\/+$/, "")}/api/cli${endpoint}`,
+        {
+            ...options,
+            headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token.access_token}`,
+                ...options.headers,
+            },
         }
-        
-        return await this.createConversation(userId,mode);
+    );
+
+    if (!response.ok) {
+        const result = await response.json().catch(() => ({}));
+        throw new Error(result.error || `API request failed: HTTP ${response.status}`);
     }
+
+    if (response.status === 204) return null;
+
+    return response.json();
+}
+    async createConversation(userId, mode = "chat", title = null) {
+    return this.request("/conversations", {
+        method: "POST",
+        body: JSON.stringify({
+            mode,
+            title: title || `New ${mode} conversation`,
+        }),
+    });
+}
+
+async getOrCreateConversation(userId, conversationId = null, mode = "chat") {
+    if (conversationId) {
+        return this.request(
+            `/conversations/${encodeURIComponent(conversationId)}`
+        );
+    }
+
+    return this.createConversation(userId, mode);
+}
 
     // user messages add to convo like {role:user ,message:"jhfdks"}
-     async addMessage(conversationId, role, content) {
-    // Convert content to JSON string if it's an object
-    const contentStr = typeof content === "string" 
-      ? content 
-      : JSON.stringify(content);
+   async addMessage(conversationId, role, content) {
+    const contentStr =
+        typeof content === "string" ? content : JSON.stringify(content);
 
-    return await prisma.message.create({
-      data: {
-        conversationId,
-        role,
-        content: contentStr,
-      },
-    });
-  }
-
-
-    async getMessages(conversationId){
-        const messages=await prisma.message.findMany({
-            where:{conversationId},
-            orderBy:{createdAt:"asc"}
-        })
-
-        return messages.map((msg)=>({
-            ...msg,
-            content:this.parseContent(msg.content)
-        }))
-    }
-
-    async getUserConversation(userId){
-        return prisma.conversation.findMany({
-            where:{userId},
-            orderBy:{updatedAt:"desc"},
-            include:{
-                messages:{
-                    take:1,
-                    orderBy:{createdAt:"desc"}
-                }
-            }
-        })
-    }
+    return this.request(
+        `/conversations/${encodeURIComponent(conversationId)}/messages`,
+        {
+            method: "POST",
+            body: JSON.stringify({
+                role,
+                content: contentStr,
+            }),
+        }
+    );
+}
 
 
-    async deleteConversation(conversationId,userId){
-        return await prisma.conversation.deleteMany({
-            where:{
-                id:conversationId,
-                userId
-            }
-        })
-    }
+  async getMessages(conversationId) {
+    const messages = await this.request(
+        `/conversations/${encodeURIComponent(conversationId)}/messages`
+    );
 
-    async updateTitle(conversationId,title){
-        return await prisma.conversation.update({
-            where:{id:conversationId},
-            data:{title}
-        })
-    }
+    return messages.map((msg) => ({
+        ...msg,
+        content: this.parseContent(msg.content),
+    }));
+}
+    async getUserConversation(userId) {
+    return this.request("/conversations");
+}
+
+  async deleteConversation(conversationId, userId) {
+    return this.request(
+        `/conversations/${encodeURIComponent(conversationId)}`,
+        {
+            method: "DELETE",
+        }
+    );
+}
+   async updateTitle(conversationId, title) {
+    return this.request(
+        `/conversations/${encodeURIComponent(conversationId)}`,
+        {
+            method: "PATCH",
+            body: JSON.stringify({ title }),
+        }
+    );
+}
 
     parseContent(content){
         try {
