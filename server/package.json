@@ -1,7 +1,7 @@
 {
   "name": "pulse-cli-divakar",
-  "version": "1.0.2",
-  "main": "src/index.js",
+  "version": "1.0.4",
+  "main": "./src/cli/main.js",
   "bin": {
     "pulse": "./src/cli/main.js"
   },
@@ -47,10 +47,12 @@
     "prisma": "^7.10.1"
   },
    "files": [
-    "src/cli",
-     "src/lib",
-     "src/config",
-      "src/generated/prisma"
+  "src/cli",
+  "src/service",
+  "src/lib/token.js",
+  "src/config/agent-config.js",
+  "src/config/google.config.js",
+  "src/config/tool.config.js"
   ]
   
 }

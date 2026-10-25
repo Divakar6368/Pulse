@@ -9,6 +9,7 @@ import { login} from "./commands/auth/login.js"
 import { logout } from "./commands/auth/logout.js"
 import { whoami } from "./commands/auth/whoami.js"
 import { wakeUp } from "./commands/ai/wakeup.js"
+import {config} from "./commands/config/config.js"
 
 
 dotenv.config()
@@ -32,6 +33,7 @@ async function main() {
     .addCommand(logout)
     .addCommand(whoami)
     .addCommand(wakeUp)
+    .addCommand(config)
     
 
     program.action(()=>{
