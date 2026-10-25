@@ -16,7 +16,6 @@ import { markedTerminal } from "marked-terminal";
 import { AIService } from "../ai/google-service.js";
 import { ChatService } from "../../service/chat.service.js";
 import { getStoredToken } from "../../lib/token.js";
-import { prisma } from "../../lib/db.js";
 import { getUserFromToken, saveMessage } from "./utils/chataiutils.js";
 import { generateApplication } from "../../config/agent-config.js";
 

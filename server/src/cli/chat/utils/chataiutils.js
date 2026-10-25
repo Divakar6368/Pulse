@@ -1,39 +1,60 @@
 import yoctoSpinner from "yocto-spinner";
-import { getStoredToken } from "../../../lib/token.js";
-import { prisma } from "../../../lib/db.js";
 import { AIService } from "../../ai/google-service.js";
 import { ChatService } from "../../../service/chat.service.js";
 import { isCancel, text } from "@clack/prompts";
 import chalk from "chalk";
 import boxen from "boxen";
 import { marked } from "marked";
+import { requireAuth } from "../../../lib/token.js";
+import { URL } from "../../commands/auth/login.js";
 
 const aiService=new AIService()
 const chatService=new ChatService()
 
 export async function getUserFromToken() {
-    const token=await getStoredToken();
-    if(!token.access_token){
-        throw new Error("Not authenticated. Please run 'pulse login' first");
-    }
-    const spinner=yoctoSpinner({text:"Authenticating..."});
-    spinner.start()
+    const token = await requireAuth();
 
-    const user=await prisma.user.findFirst({
-        where:{
-            sessions:{
-                some:{token:token.access_token},
+    const spinner = yoctoSpinner({
+        text: "Authenticating..."
+    });
+
+    spinner.start();
+
+    try {
+        const serverUrl = URL.replace(/\/+$/, "");
+
+        const response = await fetch(`${serverUrl}/api/cli/me`, {
+            headers: {
+                Authorization: `Bearer ${token.access_token}`,
+            },
+        });
+
+        if (!response.ok) {
+            spinner.error("Authentication failed");
+
+            if (response.status === 401) {
+                throw new Error("Session invalid or expired. Please login again.");
             }
-        }
-    })
-    if(!user){
-        spinner.error("User not found")
-        throw new Error("User not found.Please login again")
-    }
-    spinner.success(`Welcome back, ${user.name}!`)
-    return user;
-}
 
+            throw new Error(`Failed to fetch user: HTTP ${response.status}`);
+        }
+
+        const user = await response.json();
+
+        if (!user?.id) {
+            spinner.error("User not found");
+            throw new Error("User not found. Please login again.");
+        }
+
+        spinner.success(`Welcome back, ${user.name}!`);
+        return user;
+    } catch (error) {
+        if (spinner.isSpinning) {
+            spinner.error("Failed to authenticate");
+        }
+        throw error;
+    }
+}
 
 export async function getAIResponse(conversationId) {
     const spinner = yoctoSpinner({ 

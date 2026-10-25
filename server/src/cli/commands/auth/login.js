@@ -13,7 +13,6 @@ import yoctoSpinner from "yocto-spinner";
 import * as z from "zod/v4";
 import dotenv from "dotenv";
 
-import { prisma } from "../../../lib/db.js";
 import { clearStoredToken, getStoredToken, isTokenExpired, requireAuth, storeToken } from "../../../lib/token.js";
 import { pollForToken } from "../utils/polling.js";
 
