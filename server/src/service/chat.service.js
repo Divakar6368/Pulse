@@ -1,5 +1,5 @@
-import { URL } from "../cli/commands/auth/login";
-import { getStoredToken } from "../lib/token";
+import { URL } from "../cli/commands/auth/login.js";
+import { getStoredToken } from "../lib/token.js";
 
 
 
