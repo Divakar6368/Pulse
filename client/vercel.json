@@ -1,0 +1,8 @@
+{
+  "rewrites": [
+    {
+      "source": "/api/auth/:path*",
+      "destination": "https://pulse-4t51.onrender.com/api/auth/:path*"
+    }
+  ]
+}
